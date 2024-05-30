@@ -1,0 +1,1999 @@
+openapi: 3.0.2
+info:
+  title: VNSC Trade API
+  version: 0.0.1
+  description: This is the first line.
+    this is the second line.
+
+servers:
+- url: https://api.vinasecurities.com
+paths:
+  /trade/accounts/{subAccountId}/order-history:
+    get:
+      security:
+        - BearerAuth: []
+      tags:
+      - Order
+      summary: Lấy lịch sử giao dịch
+      description: Lấy lịch sử giao dịch
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: from_date
+        in: query
+        description: Từ ngày
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd"
+      - name: to_date
+        in: query
+        description: Đến ngày
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd"
+      - name: page
+        in: query
+        description: Trang
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: symbol
+        in: query
+        description: Mã chứng khoán(nếu không truyền thì sẽ lấy tất cả các mã)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderHistoryResponse'
+                  next_page:
+                    type: integer
+                    example: 2
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/sub-accounts/{subAccountId}/orders:
+    post:
+      tags:
+      - Order
+      summary: Tạo lệnh
+      description: Tạo lệnh mua / bán
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_order_payload'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/sub-accounts/{subAccountId}/orders/{orderId}:
+    put:
+      tags:
+      - Order
+      summary: Sửa lệnh
+      description: Sửa lệnh
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: orderId
+        in: path
+        description: Mã quản lý lệnh
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update_order_payload'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    delete:
+      tags:
+        - Order
+      summary: Hủy lệnh
+      description: Hủy lệnh
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: orderId
+        in: path
+        description: Mã quản lý lệnh
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/accounts/{subAccountId}/order-book:
+    get:
+      tags:
+      - Order
+      summary: Lấy sổ lệnh
+      description: Lấy sổ lệnh
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: Lọc
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderBookEntry'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /trade/sub-accounts/{subAccountId}/trade-info:
+    get:
+      tags:
+      - Order
+      summary: Lấy thông tin về sức mua bán khả dụng
+      description: Lấy thông tin về sức mua bán khả dụng
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: cust-id
+        in: header
+        description: Mã khách hàng ở core chứng khoán
+        required: true
+        schema:
+          $ref: '#/components/schemas/USERID'
+      - name: side
+        in: query
+        description: Loại lệnh
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/ORDER_SIDE'
+      - name: symbol
+        in: query
+        description: Mã chứng khoán
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: quote_price
+        in: query
+        description: Giá đặt lệnh
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    $ref: '#/components/schemas/TradeInfo'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /trade/sub-accounts/{subAccountId}/advance-info:
+    get:
+      tags:
+      - Cash + Loan
+      summary: Lấy thông tin ứng trước tiền bán
+      description: Lấy thông tin ứng trước tiền bán
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdvanceInfo'
+                allOf:
+                - $ref: '#/components/schemas/pagination'
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    put:
+      tags:
+      - Cash + Loan
+      summary: Setup tự động ứng trước tiền bán
+      description: Setup tự động ứng trước tiền bán
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update_advance_payload'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdvanceInfo'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/sub-accounts/{subAccountId}/advance-transactions:
+    get:
+      tags:
+      - Cash + Loan
+      summary: Lấy thông tin lịch sử ứng trước tiền bán
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: from_date
+        in: query
+        description: Từ ngày, filter theo ngày ứng
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      - name: to_date
+        in: query
+        description: Đến ngày, filter theo ngày ứng
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Advance'
+                allOf:
+                - $ref: '#/components/schemas/pagination'
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /trade/sub-accounts/{subAccountId}/loans:
+    get:
+      tags:
+      - Cash + Loan
+      summary: Lấy thông tin lịch sử trả nợ
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: from_date
+        in: query
+        description: Từ ngày, filter theo ngày vay
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      - name: to_date
+        in: query
+        description: Đến ngày, filter theo ngày vay
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Loan'
+                allOf:
+                - $ref: '#/components/schemas/pagination'
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/sub-accounts/{subAccountId}/asset-summary:
+    get:
+      tags:
+      - Cash + Loan
+      summary: Lấy thông tin tài sản tiểu khoản
+      description: Lấy thông tin tài sản tiểu khoản
+      parameters:
+      - name: subAccountId
+        in: path
+        description: Mã tiểu khoản
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: cust-id
+        in: header
+        description: Mã khách hàng ở core chứng khoán
+        required: true
+        schema:
+          $ref: '#/components/schemas/USERID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      asset:
+                        $ref: '#/components/schemas/Asset'
+                      is_snapshot:
+                        type: boolean
+                        description: Thông tin có phải lấy từ snapshot hay không
+                        example: false
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /trade/sub-accounts/{subAccountId}/portfolio:
+    get:
+      tags:
+        - Stock
+      summary: Lấy thông tinh danh mục cổ phiếu của tiểu khoản.
+      description: Lấy thông tinh danh mục cổ phiếu của tiểu khoản.
+      parameters:
+        - name: subAccountId
+          in: path
+          description: Mã tiểu khoản
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        - name: cust-id
+          in: header
+          description: Mã khách hàng ở core chứng khoán
+          required: true
+          schema:
+            $ref: '#/components/schemas/USERID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      portfolio:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PortfolioEntry'
+                      is_snapshot:
+                        type: boolean
+                        description: Thông tin có phải lấy từ snapshot hay không
+                        example: false
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+
+
+  ############################################################
+  # ACCOUNT SERVICE
+  ############################################################
+  /accounts/v1/users/{userId}/sub-accounts:
+    put:
+      tags:
+      - Account
+      summary: Cập nhật thông tin đăng ký tiểu khoản
+      description: Cập nhật thông tin đăng ký tiểu khoản
+      parameters:
+      - name: userId
+        in: path
+        description: Số id khách hàng
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/USERID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update_sub_account_payload'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SubAccount'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    get:
+      tags:
+      - Account
+      summary: Lấy danh sách các tiểu khoản và trạng thái đăng ký tương ứng
+      description: Lấy danh sách các tiểu khoản và trạng thái đăng ký tương ứng
+      parameters:
+      - name: userId
+        in: path
+        description: Số id khách hàng
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/USERID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubAccount'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /accounts/v1/users/{userId}/bank-accounts:
+    get:
+      tags:
+        - Bank Account
+      summary: Lấy danh sách các tài khoản ngân hàng của khách hàng
+      description: Lấy danh sách các tài khoản ngân hàng của khách hàng
+      parameters:
+        - name: userId
+          in: path
+          description: Số id khách hàng
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/USERID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BankAccount'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /accounts/v1/users/{userId}:
+    get:
+      tags:
+        - Account
+      summary: Lấy thông tin và trạng thái của tài khoản
+      description: Lấy thông tin tài khoản thu hộ và trạng thái của tài khoản
+      parameters:
+        - name: userId
+          in: path
+          description: Số id khách hàng
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/USERID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserInfo'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /payments/v1/users/{userId}/sub-accounts/{subAccountId}/transactions:
+    get:
+      tags:
+        - Payment
+        - WIP
+      summary: Lấy lịch sử giao dịch của tiểu khoản
+      description: Lấy danh sách giao dịch của tiểu khoản
+      parameters:
+        - name: userId
+          in: path
+          description: Số id khách hàng
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/USERID'
+        - name: subAccountId
+          in: path
+          description: Mã tiểu khoản
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        - name: from
+          in: query
+          description: Ngày bắt đầu lấy dữ liệu
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: Ngày kết thúc lấy dữ liệu
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Trang hiện tại
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: Số lượng giao dịch trên mỗi trang
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CashTransaction'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        order_id:
+          type: string
+          description: Mã quản lý lệnh
+        account_id:
+          type: string
+          description: Số tiểu khoản
+        transaction_date:
+          type: string
+          description: Ngày giao dịch
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        symbol:
+          type: string
+          description: Mã chứng khoán
+        order_side:
+          $ref: '#/components/schemas/ORDER_SIDE'
+        order_quantity:
+          type: integer
+          format: int64
+          description: Số lượng CP
+        limit_price:
+          type: integer
+          format: int64
+          description: Giá đặt giới hạn nếu `order_type` là `LIMIT`
+        market_price:
+          $ref: '#/components/schemas/MARKET_PRICE'
+        execute_quantity:
+          type: integer
+          format: int64
+          description: Số lượng khớp
+        execute_price:
+          type: integer
+          format: int64
+          description: Giá khớp
+        order_status:
+          $ref: '#/components/schemas/ORDER_STATUS'
+        fee_amount:
+          type: integer
+          format: int64
+          description: Phí giao dịch
+        tax_amount:
+          type: integer
+          format: int64
+          description: Thuế giao dịch
+        execute_amount:
+          type: integer
+          format: int64
+          description: Thành tiền
+        order_type:
+          $ref: '#/components/schemas/ORDER_TYPE'
+        order_condition_type:
+          $ref: '#/components/schemas/ORDER_CONDITION_TYPE'
+        rejected_reason:
+          type: string
+          description: Lý do lệnh đặt không thành công
+        code:
+          type: string
+          example: "0"
+          description: Mã lỗi khi đặt lệnh sang core
+        lot:
+          $ref: '#/components/schemas/LOT'
+
+    OrderHistoryResponse:
+      type: object
+      properties:
+        order_id:
+          type: string
+          description: Mã quản lý lệnh
+        account_id:
+          type: string
+          description: Số tiểu khoản
+          example: "0001001093"
+        tx_date:
+          type: string
+          format: date-time
+          description: Ngày khớp lệnh
+        symbol:
+          type: string
+          example: "HCM"
+        side:
+          $ref: '#/components/schemas/ORDER_SIDE'
+        order_qtty:
+          type: integer
+          example: 700
+        quote_price:
+          type: integer
+          example: 40000
+        exec_qtty:
+          type: integer
+          example: 0
+        exec_price:
+          type: integer
+          example: 0
+        status:
+          $ref: '#/components/schemas/ORDER_STATUS'
+        fee_amt:
+          type: integer
+          example: 0
+        tax_amt:
+          type: integer
+          example: 0
+        exec_amt:
+          type: integer
+          example: 0
+        orderType:
+          $ref: '#/components/schemas/ORDER_TYPE'
+
+    OrderBookEntry:
+      type: object
+      properties:
+        custodycd:
+          $ref: '#/components/schemas/CUSTODYCD'
+        txdate:
+          type: string
+          description: Ngày giao dịch
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        custid:
+          type: string
+        odorderid:
+          type: string
+          description: Mã quản lý lệnh
+
+        transaction_time:
+          type: string
+          description: Thời gian giao dịch
+          format: "HH:mm:ss"
+          example: "09:30:00"
+        symbol:
+          type: string
+          description: Mã chứng khoán
+          example: VNM
+        allow_cancel:
+          type: string
+          description: Cho phép hủy lệnh
+          enum:
+            - "Y"
+            - "N"
+        allow_amend:
+          type: string
+          description: Cho phép sửa lệnh
+          enum:
+            - "Y"
+            - "N"
+        side_code:
+          $ref: '#/components/schemas/SIDE_CODE'
+        side:
+          $ref: '#/components/schemas/ORDER_SIDE'
+        price:
+          type: integer
+          format: int64
+          description: Giá - NOTE - hỏi thêm FSS
+        price_type:
+          $ref: '#/components/schemas/MARKET_PRICE'
+        via_code:
+          type: string
+          description: Mã quản lý kênh đặt lệnh
+          example: "0"
+          deprecated: true
+        via:
+          type: string
+          description: Kênh đặt lệnh
+          example: "Online Trading"
+          deprecated: true
+        quantity:
+          type: integer
+          format: int64
+          description: Số lượng đặt lệnh
+          example: 100
+        execute_quantity:
+          type: integer
+          format: int64
+          description: Số lượng khớp
+          example: 100
+        execute_amount:
+          type: integer
+          format: int64
+          description: Thành tiền khớp
+          example: 1000000
+        execute_price:
+          type: integer
+          format: int64
+          description: Giá khớp
+          example: 10000
+        remain_quantity:
+          type: integer
+          format: int64
+          description: Số lượng còn lại chưa khớp
+          example: 0
+        remain_amount:
+          type: integer
+          format: int64
+          description: Thành tiền còn lại chưa khớp
+          example: 0
+        status_code:
+          type: string
+          description: Mã trạng thái lệnh.
+          example: "6"
+          deprecated: true
+        status:
+          $ref: '#/components/schemas/ORDER_STATUS'
+        tl_name:
+          deprecated: true
+          type: string
+          description: >
+            Người đặt lệnh (mặc định là USERONLINE, với trường hợp môi giới đặt lệnh: tên quản lý của môi giới trong hệ thống)
+          example: USERONLINE
+        username:
+          deprecated: true
+          type: string
+          description: >
+            Tên người đặt lệnh (đối với KH đặt mặc định là mã KH, với các trường hợp môi giới đặt: tên quản lý của MG trong HT)
+        exchange_session:
+          deprecated: true
+          $ref: '#/components/schemas/EXCHANGE_SESSION'
+        cancel_quantity:
+          type: integer
+          format: int64
+          description: Số lượng hủy
+        amend_quantity:
+          type: integer
+          format: int64
+          description: Số lượng sửa
+        is_disposal:
+          type: string
+          description: Lệnh bán giải chấp (lệnh bán xử lý) Có/ Không
+        root_order_id:
+          type: string
+          description: Mã quản lý lệnh gốc. Refers to the `Order.order_id` of the original order that was amended.
+        time_type:
+          type: string
+          description: Loại lệnh thời gian.
+          example: "Trong ngày"
+          deprecated: true
+        time_type_value:
+          description: Mã quản lý lệnh thời gian.
+          $ref: '#/components/schemas/TIME_TYPE'
+          example: "DAY"
+        feed_back_msg:
+          type: string
+          description: Lệnh được từ chối/chấp nhận
+          deprecated: true
+        quote_quantity:
+          type: integer
+          format: int64
+          description: Số lượng đặt - NOTE - hỏi thêm FSS
+          deprecated: true
+        limit_price:
+          type: integer
+          format: int64
+          description: Giá đặt - NOTE - hỏi thêm FSS
+        transaction_timestamp:
+          type: string
+          description: Thời gian đặt lệnh
+          example: "2022-12-22T14:17:26.141Z"
+        matchtype_code:
+          type: string
+          description: |
+            Mã quản lý loại khớp lệnh
+            - `T`: Thoả thuận
+            - `N`: Bình thường
+          enum:
+            - "T"
+            - "N"
+        product_type_name:
+          type: string
+          description: Loại hình tiểu khoản.
+          example: ".1"
+        sub_account_ext:
+          $ref: '#/components/schemas/SUB_ACCOUNT_EXT'
+    Asset:
+      type: object
+      description: |
+        Thông tin tài sản của tài khoản [Chi tiết công thức](https://docs.google.com/spreadsheets/d/12m0XYaIdN9enwokd9DmdUFUEaDlKL4LgP4T08f3QPjk/edit#gid=0)
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        balance:
+          type: integer
+          format: int64
+          description: |
+            Tiền mặt và tiền chờ về của sự kiện quyền.
+          example: 5263107517
+        ci_balance:
+          type: integer
+          format: int64
+          description: Tiền không kì hạn
+          example: 253107517
+        td_balance:
+          type: integer
+          format: int64
+          description: Tiền kì hạn
+          example: 1000000000
+        interest_balance:
+          type: integer
+          format: int64
+          description: |
+            Lãi tiền gửi chưa thanh toán + Lãi tiền gửi có kỳ hạn tạm tính
+          example: 14558
+        ca_receiving:
+          type: integer
+          format: int64
+          description: |
+            Tiền cổ tức chờ về
+          example: 5000000
+        receiving_t1:
+          type: integer
+          format: int64
+          description: Tiền chờ về T1
+          example: 0
+        receiving_t2:
+          type: integer
+          format: int64
+          description: Tiền chờ về T2
+        receiving_t3:
+          type: integer
+          format: int64
+          description: Tiền chờ về T3
+        securities_amount:
+          type: integer
+          format: int64
+          description: |
+            Tổng giá trị chứng khoán (SL CK x Giá tham chiếu)
+          example: 27304500
+        total_debt_amount:
+          type: integer
+          format: int64
+          description: Tổng nợ phải trả
+        secure_amount:
+          type: integer
+          format: int64
+          description: Nợ ký quỹ T3 + Mua đã khớp trong ngày
+        trf_buy_amount:
+          type: integer
+          format: int64
+          description: Tiền ký quỹ trả chậm. Hiện tại VNSC không có tính năng trả chậm nên luôn có giá trị = 0
+          deprecated: true
+        margin_amount:
+          type: integer
+          format: int64
+          description: Nợ vay margin (tổng gốc lãi phí của món vay margin)
+        t0_debt_amount:
+          type: integer
+          format: int64
+          description: Nợ bảo lãnh (tổng gốc lãi phí của món vay bảo lãnh)
+        advanced_amount:
+          type: integer
+          format: int64
+          description: Nợ vay ứng trước (bao gồm cả phí ứng)
+        df_debt_amount:
+          type: integer
+          format: int64
+          description: Nợ vay cầm cố chứng khoán (Hiện tại VNSC không có phân hệ cầm cố nên luôn có giá trị = 0)
+          deprecated: true
+        td_debt_amount:
+          type: integer
+          format: int64
+          description: Nợ vay cầm cố tiền gửi (Hiện tại VNSC không có phân hệ tiết kiệm nên luôn có giá trị = 0)
+          deprecated: true
+        cidepo_fee_acr:
+          type: integer
+          format: int64
+          description: Nợ phí lưu ký đến hạn
+        net_asset_value:
+          type: integer
+          format: int64
+          description: |
+            Tài sản thực có
+            net_asset_value = balance - hold_balance + securities_amount - total_debt_amount + ca_receiving
+        mrcr_limit:
+          type: integer
+          format: int64
+          description: Tiền gửi có kỳ hạn ký quỹ
+        debt_amount:
+          type: integer
+          format: int64
+          description: Nợ phải trả
+        advance_max_amount_fee:
+          type: integer
+          format: int64
+          description: Phí ứng trước tối đa
+        receiving_amount:
+          type: integer
+          format: int64
+          description: Tiền chờ về
+        margin_rate:
+          type: integer
+          format: int64
+          description: Tỷ lệ ký quỹ hiện tại
+          example: 100000
+        sms_fee_amount:
+          type: integer
+          format: int64
+          description: Nợ phí dịch vụ SMS của tài khoản
+        ibroker_fee_amt:
+          type: integer
+          format: int64
+          description: phí dịch vụ IBroker của tài khoản
+          deprecated: true
+        hold_balance:
+          type: integer
+          format: int64
+          description: Số tiền hold từ ngân hàng (với tài khoản corebank)
+        mri_rate:
+          type: integer
+          format: int64
+          description: Tỷ lệ an toàn
+          example: 100
+        mrm_rate:
+          type: integer
+          format: int64
+          description: Tỷ lệ duy trì
+        cidepo_fee:
+          type: number
+          description: Phí lưu ký cộng dồn
+          example: 57.75
+        tdint_amount:
+          type: number
+          description: Lãi tạm tính Ibonds
+          example: 6575.34
+        add_vnd:
+          type: integer
+          format: int64
+          description: Số tiền cần nộp thêm bổ sung về Rat
+        add_vnd_1:
+          type: integer
+          format: int64
+          description: Số tiền cần nộp thêm bổ sung về Rdt
+        core_bank:
+          type: string
+          description: Tiểu khoản có kết nối ngân hàng không
+          example: N
+        bankacct_no:
+          type: string
+          description: Số tài khoản ngân hàng
+          nullable: true
+        bank_name:
+          type: string
+          description: Tên ngân hàng
+          nullable: true
+        emk_amount:
+          type: integer
+          format: int64
+          description: Số tiền phong toả khác
+        baldefovd:
+          type: string
+          description: Số tiền có thể rút
+        mrcr_limit_max:
+          type: integer
+          format: int64
+          description: Hạn mức tối đa của tiểu khoản
+          example: 1000000000
+    Advance:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        advance_date:
+          type: string
+          description: Ngày ứng
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+          example: "2023/01/22"
+        sell_date:
+          type: string
+          description: Ngày bán cổ phiếu
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+          example: "2023/01/22"
+        clear_date:
+          type: string
+          description: Ngày thanh toán
+          format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+          example: "2023/01/26"
+        sell_amount:
+          type: integer
+          format: int64
+          description: tiền bán cổ phiếu
+          example: 22954000
+        advanced_amount:
+          type: integer
+          format: int64
+          description: Số tiền ứng
+          example: 22952740
+        fee_amount:
+          type: integer
+          format: int64
+          description: Phí ứng
+          example: 30144
+        receive_amount:
+          type: integer
+          format: int64
+          description: Số tiền thực nhận
+          example: 22922596
+        advanced_days:
+          type: integer
+          format: int64
+          description: Số ngày ứng
+          example: 4
+        advanced_status:
+          $ref: '#/components/schemas/ADVANCE_STATUS'
+    AdvanceInfo:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        max_advance_amount:
+          type: integer
+          format: int64
+          description: Số tiền nhận tối đa (Số tiền ứng tối đa - phí ứng)
+          example: 100000000
+        auto_advance:
+          type: string
+          description: Tự động ứng
+          enum:
+            - "Y"
+            - "N"
+          example: "Y"
+    Loan:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        loan_id:
+          type: string
+          description: Mã vay
+        loan_type:
+          type: string
+          description: |
+            Loại vay:
+            - `CL`: Ký quỹ
+            - `BL`: Bảo lãnh
+          enum:
+            - CL
+            - BL
+        release_date:
+          type: string
+          description: Ngày giải ngân
+        overdue_date:
+          type: string
+          description: Ngày đáo hạn
+        principal_loan:
+          type: integer
+          format: int64
+          description: Nợ gốc - NOTE - Công thức?
+        principal_paid:
+          type: integer
+          format: int64
+          description: Trả gốc - NOTE - Công thức?
+        principal_remaining:
+          type: integer
+          format: int64
+          description: Nợ gốc còn lại - NOTE - Công thức?
+        overdue_fee:
+          type: integer
+          format: int64
+          description: Phí nợ quá hạn - NOTE - Công thức?
+        interest_rate:
+          type: string
+          example: "8 - 0"
+          description: NOTE - Chưa rõ - Hỏi lại FSS.
+        interest_paid:
+          type: integer
+          format: int64
+          description: Trả lãi - NOTE - Công thức?
+    SubAccount:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        account_type:
+          type: string
+          description: Mã loại hình tiểu khoản
+          example: "0001"
+        product_type:
+          type: string
+          description: Mô tả loại hình sản phẩm. NOTE - Làm rõ với FSS
+          example: ".1"
+        is_margin_account:
+          type: string
+          description: |
+            Loại tiểu khoản
+            - `Y`: Tiểu khoản margin
+            - `N`: Tiểu khoản thường
+          enum:
+            - "Y"
+            - "N"
+        rate1:
+          type: integer
+          format: int64
+        rate2:
+          type: integer
+          format: int64
+        rate3:
+          type: integer
+          format: int64
+        user_id:
+          $ref: '#/components/schemas/USERID'
+        status:
+          type: boolean
+    TradeInfo:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        order_side:
+          $ref: '#/components/schemas/ORDER_SIDE'
+        symbol:
+          type: string
+          description: Mã chứng khoán
+          example: "VNM"
+        pp0:
+          type: integer
+          format: int64
+          description: Sức mua cơ bản - NOTE - Công thức?
+          example: 820354818
+        ppse:
+          type: integer
+          format: int64
+          description: Sức mua tối đa (đã bẩy) - NOTE - Công thức?
+          example: 820354818
+        max_quantity:
+          type: integer
+          format: int64
+          description: Số lượng mua tối đa. NOTE - Công thức?
+          example: 15100
+        available_quantity:
+          type: integer
+          format: int64
+          description: Khối lượng được giao dịch.
+          example: 1600
+        pp_rate:
+          type: integer
+          format: string
+          description: Tỉ lệ sức mua.
+          example: "---"
+        mr_rate:
+          type: integer
+          format: int64
+          description: Tỉ lệ định giá tính Rtt
+          example: 100000
+        balance:
+          type: integer
+          format: int64
+          description: Tiền mặt
+          example: 820354818
+        quote_price:
+          type: integer
+          format: int64
+          description: Giá đặt lệnh
+          example: 15000
+    PortfolioEntry:
+      type: object
+      properties:
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        symbol:
+          type: string
+          description: Mã chứng khoán
+          example: "VNM"
+        securities_type:
+          type: string
+          description: Loại CK
+          example: "001"
+        total:
+          type: integer
+          format: int64
+          description: |
+            Tổng số lượng CK trong tiểu khoản
+            CÔNG THỨC: `total = available + mortgage + vsd_mortgage + restrict + blocked + receiving_right + receiving_t0 + receiving_t1 + receiving_t2 + matching_amount + withdraw`
+          example: 600
+        available:
+          type: number
+          description: số lượng CK có thể giao dịch
+          example: 497
+        blocked:
+          type: number
+          description: số lượng CK bị phong toả
+          example: 0
+        mortgage:
+          type: number
+          description: số lượng CK cầm cố thường
+          example: 0
+        vsd_mortgage:
+          type: number
+          description: số lượng CK cầm cố tại VSD
+          example: 0
+        restrict:
+          type: number
+          description: số lượng CK bị hạn chế chuyển nhượng
+        receiving_right:
+          type: number
+          description: số lượng CK quyền chờ về
+        receiving_t0:
+          type: number
+          description: số lượng CK chờ về T0
+          example: 100
+        receiving_t1:
+          type: number
+          description: số lượng CK chờ về T1
+          example: 0
+        receiving_t2:
+          type: number
+          description: số lượng CK chờ về T2
+          example: 0
+        matching_amount:
+          type: number
+          description: số lượng CK bán chờ khớp
+        withdraw:
+          type: number
+          description: số lượng CK đang chờ rút
+          example: 0
+        cost_price:
+          type: number
+          description: giá vốn
+          example: 60000
+        basic_price:
+          type: number
+          description: |
+            (Giá thị trường: nếu có thông tin thị trường: giá khớp lệnh realtime, nếu không: giá tham chiếu)
+          example: 5800
+        is_sellable:
+          type: boolean
+          description: |
+            Có thể bán hay không
+            - `true`: có thể bán
+            - `false`: không thể bán
+          example: true
+        custodycd:
+          $ref: '#/components/schemas/CUSTODYCD'
+        pnl_amount:
+          type: number
+          description: lãi lỗ tạm tính
+        pnl_rate:
+          type: number
+          description: lãi lỗ tạm tính theo %
+        close_price:
+          type: number
+          description: giá khớp gần nhất
+        cost_price_amount:
+          type: number
+          description: |
+            tổng tiền vốn. Công thức:
+            `cost_price_amount` = `(available + mortgage + vsd_mortgage + restrict + blocked + receiving_right + receiving_t0 + receiving_t1 + receiving_t2 + matching_amount) * cost_price`
+          example: 3918864
+        basic_price_amount:
+          type: number
+          description: |
+            giá trị hiện tại. Công thức:
+            `basic_price_amount` = `(available + mortgage + vsd_mortgage + restrict + blocked + receiving_right + receiving_t0 + receiving_t1 + receiving_t2 + matching_amount) * basic_price`
+          example: 3480000
+        total_pnl:
+          type: number
+          description: |
+            Khối lượng tính giá vốn. Công thức:
+            `total_pnl` = `available + mortgage + vsd_mortgage + restrict + blocked + receiving_right + receiving_t0 + receiving_t1 + receiving_t2 + matching_amount`
+          example: 600
+        sending_t0:
+          type: number
+          description: số lượng CK chờ giao T0
+          example: 100
+        sending_t1:
+          type: number
+          description: số lượng CK chờ giao T1
+          example: 0
+        sending_t2:
+          type: number
+          description: số lượng CK chờ giao T2
+          example: 0
+    BankAccount:
+      type: object
+      properties:
+        user_id:
+          $ref: '#/components/schemas/USERID'
+        bank_id:
+          type: string
+          description: Mã ngân hàng
+          example: "VCB"
+        bank_account:
+          type: string
+          description: Số tài khoản ngân hàng
+          example: "123456789"
+        bank_name:
+          type: string
+          description: Tên ngân hàng
+          example: "Vietcombank"
+        bank_branch_id:
+          type: string
+          description: Mã chi nhánh ngân hàng
+          example: "123456"
+        bank_branch:
+          type: string
+          description: Chi nhánh ngân hàng
+          example: "Nguyễn Trãi"
+        bank_city:
+          type: string
+          description: Tỉnh/Thành phố
+          example: "Hà Nội"
+        license_code:
+          type: string
+          description: Số giấy tờ của chủ tài khoản
+          example: "123456789"
+    UserInfo:
+      type: object
+      properties:
+        custodycd:
+          $ref: '#/components/schemas/CUSTODYCD'
+        user_id:
+          $ref: '#/components/schemas/USERID'
+        full_name:
+          type: string
+          description: Họ và tên
+          example: "Nguyễn Văn A"
+        status:
+          $ref: '#/components/schemas/CUSTODYCD_STATUS'
+        vsd_status:
+          $ref: '#/components/schemas/VSD_STATUS'
+        # vpb_account:
+        #   type: string
+        #   description: Số tài khoản VPBank (VA)
+        #   example: "123456789"
+        deposit_bank_accounts:
+          type: array
+          description: Danh sách tài khoản thu hộ của ngân hàng
+          items:
+            $ref: '#/components/schemas/BankAccount'
+    CashTransaction:
+      type: object
+      description: Lịch sử chuyển tiền
+      properties:
+        id:
+          type: string
+          description: Mã giao dịch
+          example: "123456789"
+        sub_account_id:
+          $ref: '#/components/schemas/SUB_ACCOUNT_ID'
+        transaction_date:
+          type: string
+          description: Ngày thực hiện giao dịch
+          example: "2020-01-01"
+        bus_date:
+          type: string
+          description: Ngày ghi nhận giao dịch
+          example: "2020-01-01"
+        transaction_number:
+          type: string
+          description: Số hiệu giao dịch
+          example: "123456789"
+        transaction_type:
+          type: number
+          description: |
+           Loại giao dịch
+            * `1` - Chuyển khoản nội bộ
+            * `2` - Chuyển khoản ra ngoài
+          enum: [1, 2]
+        transaction_status:
+          type: string
+          description: |
+            Trạng thái giao dịch
+        amount:
+          type: number
+          description: Số tiền giao dịch
+          example: 1000000
+        transaction_reference:
+          type: string
+          description: Mô tả giao dịch
+
+    ApiResponse:
+      required:
+      - error_code
+      - message
+      type: object
+      properties:
+        error_code:
+          type: string
+          example: "0"
+        message:
+          type: string
+          example: success
+# ===================================================================
+#   Enum
+# ===================================================================
+    SIDE_CODE:
+      type: string
+      description: |
+        * `NB` - Mua
+        * `NS` - Bán
+        * `AB` - Sửa mua
+        * `AS` - Sửa bán
+        * `CB` - Hủy mua
+        * `CS` - Hủy bán
+      enum:
+      - NB
+      - NS
+      - AB
+      - AS
+      - CB
+      - CS
+    MARKET_PRICE:
+      type: string
+      description: "Giá thị trường khi `order_type` là `MARKET`"
+      enum:
+      - MP
+      - ATO
+      - ATC
+      - MAK
+      - MOK
+      - MTL
+      - PLO
+    ORDER_SIDE:
+      type: string
+      description: Loại lệnh
+      enum:
+      - BUY
+      - SELL
+    STOCK_TYPE:
+      type: string
+      description: Loại chứng khoán
+      enum:
+      - BOND
+      - STOCK
+      - FUND_CERTIFICATE
+      - WARRANT
+      - ETF
+    ORDER_TYPE:
+      type: string
+      description: Loại lệnh
+      enum:
+      - LIMIT
+      - MARKET
+    ORDER_CONDITION_TYPE:
+      type: string
+      description: Loại lệnh điều kiện
+      enum:
+      - ORDER247
+      - GTD
+      - STOP
+    LOT:
+      type: string
+      description: lô của lệnh ( lô chẵn/lô lẻ)
+      enum:
+      - ODD
+      - EVEN
+    EXCHANGE_SESSION:
+      type: string
+      description: |
+        Loại phiên giao dịch:
+        - `OPEN`: Mở cửa
+        - `PROGRESS`: Liên tục
+        - `BREAK`: Nghỉ trưa
+        - `CLOSED`: Đóng cửa
+        - `PRE_CLOSED`: Phiên ATC
+        - `PUT_THROUGH`: Thoả thuận
+      enum:
+      - OPEN
+      - PROGRESS
+      - BREAK
+      - CLOSED
+      - PRE_CLOSED
+      - PUT_THROUGH
+    ORDER_STATUS:
+      type: string
+      description: |
+        Trạng thái lệnh: (code là giá trị `status_code` trong API của FSS)
+        - `SUBMMITED`: Đã gửi (code: 2)
+        - `CANCELED`: Đã hủy (code: 3)
+        - `EDITING`: Đang sửa (code: A)
+        - `MATCHED`: Đã khớp (code: 4)
+        - `EXPIRED`: Hết hiệu lực (code: 5)
+        - `CANCELING`: Đang hủy (code: C)
+        - `REJECTED`: Từ chối (code: 6)
+        - `COMPLETED`: Hoàn thành (code: 7)
+        - `WAITING_TO_SUBMIT`: Chờ gửi (code: 8)
+        - `EDITED`: Đã sửa (code: 10)
+        - `SENDING`: Đang gửi (code: 11)
+        - `FULLY_MATCHED`: Khớp hết (code: 12)
+      enum:
+      - SUBMMITED
+      - CANCELED
+      - EDITING
+      - MATCHED
+      - EXPIRED
+      - CANCELING
+      - REJECTED
+      - COMPLETED
+      - WAITING_TO_SUBMIT
+      - EDITED
+      - SENDING
+      - FULLY_MATCHED
+    TIME_TYPE:
+      deprecated: true
+      type: string
+      description: |
+        Loại thời gian:
+        - `DAY`: Ngày
+        - `GTC`: Lệnh có hiệu lực đến khi hủy (Nghiệp vụ đã bỏ)
+        - `GTD`: Lệnh có hiệu lực đến ngày (Nghiệp vụ đã bỏ)
+        - `GTT`: Lệnh có hiệu lực đến thời điểm (Nghiệp vụ đã bỏ)
+      enum:
+      - DAY
+      - GTC
+      - GTD
+      - GTT
+    ADVANCE_STATUS:
+      type: string
+      description: |
+        - `NN`: Xác nhận
+        - `CN`: Đã hoàn ứng
+        - `NY`: Đã hủy
+    PRODUCT_TYPE:
+      type: string
+      description: NOTE - Chưa rõ
+      example: .1
+    CUSTODYCD:
+      description: Số lưu ký
+      pattern: ^120C[0-9]{6}$
+      type: string
+      example: 120C000001
+    USERID:
+      description: |
+        Mã lưu ký
+      pattern: ^[0-9]+$
+      type: number
+      example: 0001000376
+    SUB_ACCOUNT_ID:
+      description: |
+        Mã tiểu khoản
+      # pattern: ^[0-9]+$
+      type: string
+      example: 0001000768
+    SUB_ACCOUNT_EXT:
+      description: |
+        Số tiểu khoản. Định dạng: `CUSTODYCD.PRODUCT_TYPE`
+      pattern: ^120C[0-9]{6}.[1-9]{1}$
+      type: string
+      example: 120C000001.1
+    CUSTODYCD_STATUS:
+      type: string
+      description: |
+        Trạng thái khách hàng trong hệ thống:
+        - `P`: Chờ duyệB
+        - `A`: Hoạt động
+        - `B`: Phong toả
+        - `C`: Đóng
+        - `N`: Chờ đóng
+      enum: [P, A, B, C, N]
+    VSD_STATUS:
+      type: string
+      description: |
+        Trạng thái điện Pở VSD:
+        - `P`: Chưa sinh điện
+        - `S`: Đã sinh điện
+        - `A`: Chờ VSD xử lý
+        - `C`: VSD xác nhận
+        - `N`: Điện không hợp lệ
+        - `E`: Xử lý lỗi tại FLEX
+        - `R`: VSD từ chối
+      enum: [P, S, A, C, N, E, R]
+# ===================================================================
+# RESPONSES & REQUESTS
+# ===================================================================
+    pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Trang hiện tại
+          example: 1
+        per_page:
+          type: integer
+          description: Số lượng bản ghi trên mỗi trang
+          example: 10
+        total:
+          type: integer
+          description: Tổng số bản ghi
+          example: 100
+        total_pages:
+          type: integer
+          description: Tổng số trang
+          example: 10
+
+    create_order_payload:
+      type: object
+      properties:
+        cus_id:
+          type: string
+          description: Mã khách hàng
+          example: "0001000826"
+        symbol:
+          type: string
+          description: Mã chứng khoán
+          example: HPG
+        side:
+          $ref: '#/components/schemas/ORDER_SIDE'
+        quantity:
+          type: integer
+          description: Số lượng
+          format: int64
+          example: 100
+        type:
+          $ref: '#/components/schemas/ORDER_TYPE'
+        limit_price:
+          type: integer
+          description: "Giá chứng khoán ( nếu loại lệnh là LIMIT thì có giá trị, nế\
+            u loại lệnh là MARKET thì trường này null)"
+          format: int64
+          example: 100000
+        market_price:
+          $ref: '#/components/schemas/MARKET_PRICE'
+        stock_type:
+          $ref: '#/components/schemas/STOCK_TYPE'
+        execution_date:
+          type: string
+          description: "Ngày thực thi lệnh điều kiện ( Nếu là lệnh thông thường thì trường này null)"
+          format: date
+          example: "2024-02-01"
+        expired_date:
+          type: string
+          description: "Ngày hết hiệu lực của lệnh điều kiện ( Nếu là lệnh thông thường thì trường này null)"
+          format: date
+          example: "2024-03-01"
+        order_condition_type:
+          $ref: '#/components/schemas/ORDER_CONDITION_TYPE'
+    update_order_payload:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          description: Số lượng
+          format: int64
+          example: 100
+        price:
+          type: integer
+          description: "Giá chứng khoán ( nếu loại lệnh là LIMIT thì có giá trị, nế\
+            u loại lệnh là MARKET thì trường này null)"
+          format: int64
+          example: 100000
+        expired_date:
+          type: string
+          description: "Ngày hết hiệu lực của lệnh điều kiện. Nếu không phải lệnh điều kiện, trường này để null"
+          format: int64
+          example: 100000
+        order_condition_type:
+          $ref: '#/components/schemas/ORDER_CONDITION_TYPE'
+    delete_order_payload:
+      type: object
+      properties:
+        order_condition_type:
+          $ref: '#/components/schemas/ORDER_CONDITION_TYPE'
+    update_advance_payload:
+      type: object
+      properties:
+        auto_advance:
+          type: string
+          description: |
+            * `Y` - Tự động
+            * `N` - Không tự động
+          enum:
+            - Y
+            - N
+          example: "Y"
+    update_sub_account_payload:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Sinh ngẫu nhiên và không trùng lặp
+          example: "123456"
+        custodycd:
+          type: string
+          description: Số lưu ký của khách hàng
+          example: "120C123456"
+        unlock_sub_accounts:
+          type: string
+          description: |
+            * `Y` - Mở cả tiểu khoản margin
+            * `N` - Chỉ mở tài khoản thường.
+          enum:
+            - Y
+            - N
+          example: "Y"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
