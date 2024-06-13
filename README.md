@@ -92,7 +92,7 @@ Sample response:
     }
 }
 ```
-After receiving your OTP via SMS, you can verify it and obtain the `trade_token` via:
+After receiving your OTP via SMS, you can verify it and obtain the `trade_token` with your own `ttl` via:
 ```
 curl --location 'https://api.vinasecurities.com/auth/v2/otp/verification' \
 --header 'Content-Type: application/json' \
@@ -100,7 +100,8 @@ curl --location 'https://api.vinasecurities.com/auth/v2/otp/verification' \
 --data '{
     "phone": "0916853668",
     "type": "TRADING_OTP",
-    "otp": "972873"
+    "otp": "972873",
+    "ttl": 604800 # 7 days
 }'
 ```
 Sample response:
@@ -114,7 +115,6 @@ Sample response:
 }
 ```
 
- This method is only temporary, in the next few weeks, we will provide a more straight-forward solution. You will also be able to choose the expired time of the token, for now, the token will be expired til the end of day.
 
 # Trade
 Please see [Trade API](trade.yaml). You can also use VNSC mobile app to verify that your order has indeed been placed into the system.
