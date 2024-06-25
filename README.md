@@ -2,6 +2,7 @@
 There are 2 seperate sets of API to begin to trade with VNSC via API:
 1. Obtain an trade token.
 2. Using this token to place your own trade via [Trade API](trade.yaml)
+3. For real-time price: see [Price API](PRICE.md)
 
 # Obtaining token
 

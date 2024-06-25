@@ -1,0 +1,45 @@
+syntax = "proto3";
+package stock.protobuf;
+
+message StockPriceMessage {
+  int32 price = 1;
+  int32 bid1 = 2;
+  int32 offer1 = 3;
+  int32 bid2 = 4;
+  int32 offer2 = 5;
+  int32 bid3 = 6;
+  int32 offer3 = 7;
+  int64 bid1Vol = 8;
+  int64 offer1Vol = 9;
+  int64 bid2Vol = 10;
+  int64 offer2Vol = 11;
+  int64 bid3Vol = 12;
+  int64 offer3Vol = 13;
+  float changePercent = 14;
+  string symbol = 15;
+
+  int32 change = 16;
+  int64 vol = 17;
+  int64 remainBid = 18;
+  int64 remainAsk = 19;
+
+  int64 foreignBought = 20;
+  int64 foreignSold = 21;
+  int64 foreignRemain = 22;
+
+  int64 totalVol = 23;
+  int64 totalVal = 24;
+
+  int32 high = 25;
+  int32 medium = 26;
+  int32 low = 27;
+
+  int32 ceiling = 28;
+  int32 reference = 29;
+  int32 floor = 30;
+  string name = 31;
+}
+
+message StockPriceMessageList {
+  repeated StockPriceMessage stockPrices = 1;
+}
